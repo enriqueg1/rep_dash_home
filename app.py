@@ -17,6 +17,8 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+
+
 # Custom CSS for Premium Design aesthetics (Strict Dark Theme)
 st.markdown("""
     <style>
@@ -99,76 +101,27 @@ st.markdown("""
             color: #F1F5F9;
         }
         
-        /* Mobile responsive Month Selector row */
-        @media (max-width: 768px) {
-            /* Force the selector row to stay horizontal */
-            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(5)) {
-                display: flex !important;
-                flex-direction: row !important;
-                flex-wrap: nowrap !important;
-                width: 100% !important;
-                align-items: center !important;
-                gap: 8px !important;
-            }
-            
-            /* Hide the spacer columns (1st and 5th child columns) */
-            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(5)) > div[data-testid="column"]:nth-child(1),
-            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(5)) > div[data-testid="column"]:nth-child(5) {
-                display: none !important;
-            }
-            
-            /* Set fixed width for arrow button columns (2nd and 4th columns) on mobile */
-            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(5)) > div[data-testid="column"]:nth-child(2),
-            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(5)) > div[data-testid="column"]:nth-child(4) {
-                width: 45px !important;
-                min-width: 45px !important;
-                flex: 0 0 45px !important;
-            }
-            
-            /* Make the selectbox column (3rd column) take up the remaining width */
-            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(5)) > div[data-testid="column"]:nth-child(3) {
-                width: calc(100% - 90px) !important;
-                flex: 1 1 auto !important;
-            }
-            
-            /* Force the 3-column metrics block to stay horizontal on mobile */
-            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(3)):not(:has(> div[data-testid="column"]:nth-child(4))) {
-                display: flex !important;
-                flex-direction: row !important;
-                flex-wrap: nowrap !important;
-                width: 100% !important;
-                gap: 6px !important;
-            }
-            
-            /* Set equal widths for the 3 columns */
-            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(3)):not(:has(> div[data-testid="column"]:nth-child(4))) > div[data-testid="column"] {
-                width: 33.33% !important;
-                flex: 1 1 0% !important;
-                min-width: 0 !important;
-            }
-            
-            /* Compact cards padding and font sizes on mobile */
-            div[data-testid="stMetric"] {
-                padding: 8px 8px !important;
-                border-radius: 8px !important;
-            }
-            
-            div[data-testid="stMetricLabel"] {
-                font-size: 0.7rem !important;
-                white-space: nowrap !important;
-                text-overflow: ellipsis !important;
-                overflow: hidden !important;
-            }
-            
-            div[data-testid="stMetricValue"] {
-                font-size: 0.95rem !important;
-            }
-            
-            /* Compact header size for mobile cellular */
-            .main-header {
-                font-size: 1.35rem;
-                margin-bottom: 0.3rem;
-            }
+        /* Compact cards padding and font sizes on mobile */
+        div[data-testid="stMetric"] {
+            padding: 8px 8px !important;
+            border-radius: 8px !important;
+        }
+        
+        div[data-testid="stMetricLabel"] {
+            font-size: 0.7rem !important;
+            white-space: nowrap !important;
+            text-overflow: ellipsis !important;
+            overflow: hidden !important;
+        }
+        
+        div[data-testid="stMetricValue"] {
+            font-size: 0.95rem !important;
+        }
+        
+        /* Compact header size for mobile cellular */
+        .main-header {
+            font-size: 1.35rem;
+            margin-bottom: 0.3rem;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -499,8 +452,13 @@ elif df_raw is not None:
             period_options = [current_period_str]
             default_index = 0
             
-        # Initialize selectbox value in session state if not already set
-        if 'selected_month' not in st.session_state:
+        # Obter parâmetros da URL para seleção de período
+        params = st.query_params
+        if "mes" in params and "ano" in params:
+            constructed_month = f"{params['mes']}/{params['ano']}"
+            if constructed_month in period_options:
+                st.session_state.selected_month = constructed_month
+        elif 'selected_month' not in st.session_state:
             st.session_state.selected_month = period_options[default_index]
             
         # Find current index
@@ -509,60 +467,33 @@ elif df_raw is not None:
         except ValueError:
             current_index = default_index
             st.session_state.selected_month = period_options[default_index]
-
-        # Centered grid structure: Spacer | Left Button (Previous) | Month Display | Right Button (Next) | Spacer
-        col_spacer1, col_left, col_sel, col_right, col_spacer2 = st.columns([2.2, 0.4, 2.8, 0.4, 2.2])
-        
-        with col_left:
-            # Seta para a esquerda (<) -> mês anterior (current_index - 1)
-            btn_prev = st.button(
-                "<", 
-                use_container_width=True, 
-                disabled=(current_index <= 0),
-                key="btn_prev_month"
-            )
-            if btn_prev:
-                st.session_state.selected_month = period_options[current_index - 1]
-                st.rerun()
-                
-        with col_sel:
-            # Exibe o mês e ano atual de forma estática e elegante (estilo pill premium)
-            st.markdown(
-                f"""
-                <div style="
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    height: 38px;
-                    font-size: 1.05rem;
-                    font-weight: 700;
-                    color: #F1F5F9;
-                    background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                    text-align: center;
-                    width: 100%;
-                ">
-                    📅 {st.session_state.selected_month}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
             
-        with col_right:
-            # Seta para a direita (>) -> próximo mês (current_index + 1)
-            btn_next = st.button(
-                ">", 
-                use_container_width=True, 
-                disabled=(current_index >= len(period_options) - 1),
-                key="btn_next_month"
-            )
-            if btn_next:
-                st.session_state.selected_month = period_options[current_index + 1]
-                st.rerun()
-                
-        st.markdown("<br/>", unsafe_allow_html=True)
+        # Parse selected month & year
+        mes_extenso, ano_atual = st.session_state.selected_month.split('/')
+        
+        # Calculate values for Anterior and Próximo buttons
+        if current_index > 0:
+            mes_anterior, ano_anterior = period_options[current_index - 1].split('/')
+        else:
+            mes_anterior, ano_anterior = period_options[0].split('/')
+            
+        if current_index < len(period_options) - 1:
+            mes_proximo, ano_proximo = period_options[current_index + 1].split('/')
+        else:
+            mes_proximo, ano_proximo = period_options[len(period_options) - 1].split('/')
+
+        # Single HTML block for bulletproof horizontal layout (Flexbox)
+        st.markdown(
+            f"""
+            <div style="display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: space-between; width: 100%; max-width: 420px; margin: 0 auto; gap: 10px;">
+                <a href="?mes={mes_anterior}&ano={ano_anterior}" target="_self" style="flex: 1; text-align: center; background-color: #f0f2f6; color: #31333F; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; border: 1px solid #d3d6df; white-space: nowrap;">⬅️</a>
+                <div style="flex: 2; text-align: center; font-weight: bold; font-size: 1.1rem; white-space: nowrap; color: #31333F;">📅 {mes_extenso}/{ano_atual}</div>
+                <a href="?mes={mes_proximo}&ano={ano_proximo}" target="_self" style="flex: 1; text-align: center; background-color: #f0f2f6; color: #31333F; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; border: 1px solid #d3d6df; white-space: nowrap;">➡️</a>
+            </div>
+            <br>
+            """,
+            unsafe_allow_html=True
+        )
         
         # Parse selected month & year to filter the dataframe
         sel_month_name, sel_year_str = st.session_state.selected_month.split('/')
