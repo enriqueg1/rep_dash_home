@@ -471,29 +471,47 @@ elif df_raw is not None:
         # Parse selected month & year
         mes_extenso, ano_atual = st.session_state.selected_month.split('/')
         
-        # Calculate values for Anterior and Próximo buttons
-        if current_index > 0:
-            mes_anterior, ano_anterior = period_options[current_index - 1].split('/')
-        else:
-            mes_anterior, ano_anterior = period_options[0].split('/')
-            
-        if current_index < len(period_options) - 1:
-            mes_proximo, ano_proximo = period_options[current_index + 1].split('/')
-        else:
-            mes_proximo, ano_proximo = period_options[len(period_options) - 1].split('/')
-
-        # Single HTML block for bulletproof horizontal layout (Flexbox)
+        # Ultra-specific CSS targeting navigation columns to prevent wrapping on mobile
         st.markdown(
-            f"""
-            <div style="display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: space-between; width: 100%; max-width: 420px; margin: 0 auto; gap: 10px;">
-                <a href="?mes={mes_anterior}&ano={ano_anterior}" target="_self" style="flex: 1; text-align: center; background-color: #f0f2f6; color: #31333F; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; border: 1px solid #d3d6df; white-space: nowrap;">⬅️</a>
-                <div style="flex: 2; text-align: center; font-weight: bold; font-size: 1.1rem; white-space: nowrap; color: #31333F;">📅 {mes_extenso}/{ano_atual}</div>
-                <a href="?mes={mes_proximo}&ano={ano_proximo}" target="_self" style="flex: 1; text-align: center; background-color: #f0f2f6; color: #31333F; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 500; border: 1px solid #d3d6df; white-space: nowrap;">➡️</a>
-            </div>
-            <br>
+            """
+            <style>
+            /* Alvo ultra-específico nas colunas de navegação */
+            div[data-testid="stHorizontalBlock"] {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 5px !important;
+            }
+            div[data-testid="stHorizontalBlock"] > div {
+                width: auto !important;
+                min-width: auto !important;
+                flex-grow: 1 !important;
+            }
+            </style>
             """,
             unsafe_allow_html=True
         )
+
+        col_ant, col_mid, col_prox = st.columns([1, 3, 1])
+        
+        with col_ant:
+            btn_ant = st.button("⬅️", key="btn_ant", use_container_width=True, disabled=(current_index <= 0))
+            if btn_ant:
+                st.session_state.selected_month = period_options[current_index - 1]
+                st.rerun()
+                
+        with col_mid:
+            st.markdown(f"<p style='text-align: center; font-size: 14px; font-weight: bold; margin-top: 8px; white-space: nowrap;'>📅 {mes_extenso}/{ano_atual}</p>", unsafe_allow_html=True)
+            
+        with col_prox:
+            btn_prox = st.button("➡️", key="btn_prox", use_container_width=True, disabled=(current_index >= len(period_options) - 1))
+            if btn_prox:
+                st.session_state.selected_month = period_options[current_index + 1]
+                st.rerun()
+                
+        st.markdown("<br>", unsafe_allow_html=True)
         
         # Parse selected month & year to filter the dataframe
         sel_month_name, sel_year_str = st.session_state.selected_month.split('/')
