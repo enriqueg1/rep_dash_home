@@ -428,9 +428,9 @@ elif df_raw is not None:
         col_spacer1, col_left, col_sel, col_right, col_spacer2 = st.columns([2.2, 0.4, 2.8, 0.4, 2.2])
         
         with col_left:
-            # Seta para esquerda (<) -> mês anterior (current_index - 1)
+            # Seta para esquerda -> mês anterior (current_index - 1)
             btn_prev = st.button(
-                "<", 
+                ">", 
                 use_container_width=True, 
                 disabled=(current_index <= 0),
                 key="btn_prev_month"
@@ -450,9 +450,9 @@ elif df_raw is not None:
             )
             
         with col_right:
-            # Seta para a direita (>) -> próximo mês (current_index + 1)
+            # Seta para a direita -> próximo mês (current_index + 1)
             btn_next = st.button(
-                ">", 
+                "<", 
                 use_container_width=True, 
                 disabled=(current_index >= len(period_options) - 1),
                 key="btn_next_month"
