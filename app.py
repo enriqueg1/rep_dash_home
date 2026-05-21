@@ -499,7 +499,7 @@ elif df_raw is not None:
                     plot_bgcolor='rgba(0,0,0,0)',
                     font=dict(family="Plus Jakarta Sans", size=12)
                 )
-                st.plotly_chart(fig_bar, use_container_width=True)
+                st.plotly_chart(fig_bar, use_container_width=True, config={'displayModeBar': False})
             else:
                 st.info("Sem dados suficientes para exibir comparativo.")
                 
@@ -532,7 +532,7 @@ elif df_raw is not None:
                     texttemplate='R$ %{y:,.2f}',
                     textposition='outside'
                 )
-                st.plotly_chart(fig_lote, use_container_width=True)
+                st.plotly_chart(fig_lote, use_container_width=True, config={'displayModeBar': False})
             else:
                 st.info("Nenhuma despesa pendente no mês para exibir a previsão por lote.")
                 
