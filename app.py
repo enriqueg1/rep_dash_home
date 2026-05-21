@@ -29,10 +29,10 @@ st.markdown("""
             color: #F1F5F9;
         }
         
-        /* Reduce page top padding to make the layout extremely tight and neat at the top */
+        /* Adjust page top padding to prevent Streamlit's floating top bar from overlapping the title */
         .block-container {
-            padding-top: 1.0rem !important;
-            padding-bottom: 1.0rem !important;
+            padding-top: 3.5rem !important;
+            padding-bottom: 1.5rem !important;
         }
         
         /* Metric Card Container Styling (Compact Premium Dark Glassmorphism) */
