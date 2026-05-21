@@ -29,30 +29,49 @@ st.markdown("""
             color: #F1F5F9;
         }
         
-        /* Metric Card Container Styling (Premium Dark Glassmorphism) */
+        /* Reduce page top padding to make the layout extremely tight and neat at the top */
+        .block-container {
+            padding-top: 1.0rem !important;
+            padding-bottom: 1.0rem !important;
+        }
+        
+        /* Metric Card Container Styling (Compact Premium Dark Glassmorphism) */
         div[data-testid="stMetric"] {
             background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%) !important;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-radius: 16px;
-            padding: 20px 24px;
+            border-radius: 12px !important;
+            padding: 10px 14px !important;
             box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease-in-out;
         }
         
         div[data-testid="stMetric"]:hover {
-            transform: translateY(-4px);
+            transform: translateY(-2px);
             border-color: rgba(59, 130, 246, 0.4) !important;
             box-shadow: 0 8px 30px 0 rgba(59, 130, 246, 0.15);
         }
         
-        /* Header gradient styling */
+        /* Compact typography for metric labels and values */
+        div[data-testid="stMetricLabel"] {
+            font-size: 0.82rem !important;
+            font-weight: 600 !important;
+            color: #94A3B8 !important;
+        }
+        
+        div[data-testid="stMetricValue"] {
+            font-size: 1.4rem !important;
+            font-weight: 700 !important;
+        }
+        
+        /* Header gradient styling (centered and compact) */
         .main-header {
             background: linear-gradient(120deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 800;
-            font-size: 2.2rem;
-            margin-bottom: 0.2rem;
+            font-size: 1.6rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
             letter-spacing: -0.025em;
         }
         .sub-header {
@@ -110,6 +129,45 @@ st.markdown("""
             div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(5)) > div[data-testid="column"]:nth-child(3) {
                 width: calc(100% - 90px) !important;
                 flex: 1 1 auto !important;
+            }
+            
+            /* Force the 3-column metrics block to stay horizontal on mobile */
+            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(3)):not(:has(> div[data-testid="column"]:nth-child(4))) {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                width: 100% !important;
+                gap: 6px !important;
+            }
+            
+            /* Set equal widths for the 3 columns */
+            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(3)):not(:has(> div[data-testid="column"]:nth-child(4))) > div[data-testid="column"] {
+                width: 33.33% !important;
+                flex: 1 1 0% !important;
+                min-width: 0 !important;
+            }
+            
+            /* Compact cards padding and font sizes on mobile */
+            div[data-testid="stMetric"] {
+                padding: 8px 8px !important;
+                border-radius: 8px !important;
+            }
+            
+            div[data-testid="stMetricLabel"] {
+                font-size: 0.7rem !important;
+                white-space: nowrap !important;
+                text-overflow: ellipsis !important;
+                overflow: hidden !important;
+            }
+            
+            div[data-testid="stMetricValue"] {
+                font-size: 0.95rem !important;
+            }
+            
+            /* Compact header size for mobile cellular */
+            .main-header {
+                font-size: 1.35rem;
+                margin-bottom: 0.3rem;
             }
         }
     </style>
