@@ -570,7 +570,7 @@ elif df_raw is not None:
         st.markdown("<br/>", unsafe_allow_html=True)
         
         # Parse selected month & year to filter the dataframe
-        sel_month_name, sel_year_str = selected_month_str.split('/')
+        sel_month_name, sel_year_str = st.session_state.selected_month.split('/')
         sel_year = int(sel_year_str)
         sel_month_num = [k for k, v in MESES.items() if v == sel_month_name][0]
         
