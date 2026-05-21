@@ -79,6 +79,39 @@ st.markdown("""
             margin-bottom: 1.5rem;
             color: #F1F5F9;
         }
+        
+        /* Mobile responsive Month Selector row */
+        @media (max-width: 768px) {
+            /* Force the selector row to stay horizontal */
+            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(5)) {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                width: 100% !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+            
+            /* Hide the spacer columns (1st and 5th child columns) */
+            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(5)) > div[data-testid="column"]:nth-child(1),
+            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(5)) > div[data-testid="column"]:nth-child(5) {
+                display: none !important;
+            }
+            
+            /* Set fixed width for arrow button columns (2nd and 4th columns) on mobile */
+            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(5)) > div[data-testid="column"]:nth-child(2),
+            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(5)) > div[data-testid="column"]:nth-child(4) {
+                width: 45px !important;
+                min-width: 45px !important;
+                flex: 0 0 45px !important;
+            }
+            
+            /* Make the selectbox column (3rd column) take up the remaining width */
+            div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(5)) > div[data-testid="column"]:nth-child(3) {
+                width: calc(100% - 90px) !important;
+                flex: 1 1 auto !important;
+            }
+        }
     </style>
 """, unsafe_allow_html=True)
 
