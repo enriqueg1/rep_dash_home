@@ -468,49 +468,29 @@ elif df_raw is not None:
             current_index = default_index
             st.session_state.selected_month = period_options[default_index]
             
-        # Parse selected month & year
-        mes_extenso, ano_atual = st.session_state.selected_month.split('/')
+        # Create available months list format: "📅 Mês / Ano"
+        lista_meses = [f"📅 {p.split('/')[0]} / {p.split('/')[1]}" for p in period_options]
+        indice_atual = current_index
         
-        # Ultra-specific CSS targeting navigation columns to prevent wrapping on mobile
-        st.markdown(
-            """
-            <style>
-            /* Alvo ultra-específico nas colunas de navegação */
-            div[data-testid="stHorizontalBlock"] {
-                display: flex !important;
-                flex-direction: row !important;
-                flex-wrap: nowrap !important;
-                align-items: center !important;
-                justify-content: center !important;
-                gap: 5px !important;
-            }
-            div[data-testid="stHorizontalBlock"] > div {
-                width: auto !important;
-                min-width: auto !important;
-                flex-grow: 1 !important;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True
+        # Render a single clean, compact native dropdown selector occupying full width
+        escolha = st.selectbox(
+            label="Selecione o Mês de Referência",
+            options=lista_meses,
+            index=indice_atual,
+            label_visibility="collapsed"
         )
-
-        col_ant, col_mid, col_prox = st.columns([1, 3, 1])
         
-        with col_ant:
-            btn_ant = st.button("⬅️", key="btn_ant", use_container_width=True, disabled=(current_index <= 0))
-            if btn_ant:
-                st.session_state.selected_month = period_options[current_index - 1]
-                st.rerun()
-                
-        with col_mid:
-            st.markdown(f"<p style='text-align: center; font-size: 14px; font-weight: bold; margin-top: 8px; white-space: nowrap;'>📅 {mes_extenso}/{ano_atual}</p>", unsafe_allow_html=True)
+        # Parse choice back to Mês/Ano format
+        escolha_limpa = escolha.replace("📅 ", "").replace(" / ", "/")
+        
+        # If selection changed, update session state and query params, then rerun
+        if escolha_limpa != st.session_state.selected_month:
+            st.session_state.selected_month = escolha_limpa
+            mes_sel, ano_sel = escolha_limpa.split('/')
+            st.query_params["mes"] = mes_sel
+            st.query_params["ano"] = ano_sel
+            st.rerun()
             
-        with col_prox:
-            btn_prox = st.button("➡️", key="btn_prox", use_container_width=True, disabled=(current_index >= len(period_options) - 1))
-            if btn_prox:
-                st.session_state.selected_month = period_options[current_index + 1]
-                st.rerun()
-                
         st.markdown("<br>", unsafe_allow_html=True)
         
         # Parse selected month & year to filter the dataframe
