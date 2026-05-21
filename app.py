@@ -409,15 +409,15 @@ elif df_raw is not None:
             default_index = 0
             
         # Initialize selectbox value in session state if not already set
-        if 'month_select_val' not in st.session_state:
-            st.session_state.month_select_val = period_options[default_index]
+        if 'selected_month' not in st.session_state:
+            st.session_state.selected_month = period_options[default_index]
             
         # Find current index
         try:
-            current_index = period_options.index(st.session_state.month_select_val)
+            current_index = period_options.index(st.session_state.selected_month)
         except ValueError:
             current_index = default_index
-            st.session_state.month_select_val = period_options[default_index]
+            st.session_state.selected_month = period_options[default_index]
 
         # -------------------------------------------------------------
         # MONTH FILTER SELECTOR AT THE TOP WITH ARROWS (CENTERED DESIGN)
@@ -436,7 +436,7 @@ elif df_raw is not None:
                 key="btn_prev_month"
             )
             if btn_prev:
-                st.session_state.month_select_val = period_options[current_index - 1]
+                st.session_state.selected_month = period_options[current_index - 1]
                 st.rerun()
                 
         with col_sel:
@@ -444,10 +444,13 @@ elif df_raw is not None:
                 label="Mês de Referência",
                 options=period_options,
                 index=current_index,
-                key="month_select_val",
                 label_visibility="collapsed",
                 help="Selecione o mês desejado para atualizar as métricas, gráficos e lotes de pagamento."
             )
+            # Sync user manual change with session state
+            if selected_month_str != st.session_state.selected_month:
+                st.session_state.selected_month = selected_month_str
+                st.rerun()
             
         with col_right:
             # Seta para a direita -> próximo mês (current_index + 1)
@@ -458,7 +461,7 @@ elif df_raw is not None:
                 key="btn_next_month"
             )
             if btn_next:
-                st.session_state.month_select_val = period_options[current_index + 1]
+                st.session_state.selected_month = period_options[current_index + 1]
                 st.rerun()
                 
         st.markdown("<br/>", unsafe_allow_html=True)
