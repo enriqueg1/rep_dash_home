@@ -408,62 +408,57 @@ elif df_raw is not None:
             period_options = [current_period_str]
             default_index = 0
             
-        # Initialize the session state for selected_month_index
-        if 'selected_month_index' not in st.session_state:
-            st.session_state.selected_month_index = default_index
+        # Initialize selectbox value in session state if not already set
+        if 'month_select_val' not in st.session_state:
+            st.session_state.month_select_val = period_options[default_index]
             
-        # Ensure selected_month_index is within bounds
-        if st.session_state.selected_month_index < 0:
-            st.session_state.selected_month_index = 0
-        elif st.session_state.selected_month_index >= len(period_options):
-            st.session_state.selected_month_index = len(period_options) - 1
-            
-        def on_month_change():
-            val = st.session_state.month_select_val
-            if val in period_options:
-                st.session_state.selected_month_index = period_options.index(val)
+        # Find current index
+        try:
+            current_index = period_options.index(st.session_state.month_select_val)
+        except ValueError:
+            current_index = default_index
+            st.session_state.month_select_val = period_options[default_index]
 
         # -------------------------------------------------------------
         # MONTH FILTER SELECTOR AT THE TOP WITH ARROWS
         # -------------------------------------------------------------
-        st.markdown("<p style='font-size: 0.95rem; font-weight: 600; color: #94A3B8; margin-bottom: 0.5rem; margin-top: 0.5rem;'>📅 Mês de Referência</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 0.95rem; font-weight: 600; color: #94A3B8; margin-bottom: 0.2rem; margin-top: 0.5rem;'>📅 Mês de Referência</p>", unsafe_allow_html=True)
         
         # Grid structure: Left Button | Selectbox | Right Button | Spacer
-        col_left, col_sel, col_right, col_spacer = st.columns([0.8, 2.0, 0.8, 4.4])
+        col_left, col_sel, col_right, col_spacer = st.columns([0.4, 2.0, 0.4, 5.2])
         
         with col_left:
-            # Seta para esquerda -> próximo mês (index + 1)
+            # Seta para esquerda (<) -> próximo mês (current_index + 1)
             btn_next = st.button(
-                "⬅️ Próximo", 
+                "<", 
                 use_container_width=True, 
-                disabled=(st.session_state.selected_month_index >= len(period_options) - 1),
+                disabled=(current_index >= len(period_options) - 1),
                 key="btn_next_month"
             )
             if btn_next:
-                st.session_state.selected_month_index += 1
+                st.session_state.month_select_val = period_options[current_index + 1]
                 st.rerun()
                 
         with col_sel:
             selected_month_str = st.selectbox(
                 label="Mês de Referência",
                 options=period_options,
-                index=st.session_state.selected_month_index,
+                index=current_index,
                 key="month_select_val",
-                on_change=on_month_change,
                 label_visibility="collapsed",
                 help="Selecione o mês desejado para atualizar as métricas, gráficos e lotes de pagamento."
             )
             
         with col_right:
-            # Seta para a direita -> mês anterior (index - 1)
+            # Seta para a direita (>) -> mês anterior (current_index - 1)
             btn_prev = st.button(
-                "Anterior ➡️", 
+                ">", 
                 use_container_width=True, 
-                disabled=(st.session_state.selected_month_index <= 0),
+                disabled=(current_index <= 0),
                 key="btn_prev_month"
             )
             if btn_prev:
-                st.session_state.selected_month_index -= 1
+                st.session_state.month_select_val = period_options[current_index - 1]
                 st.rerun()
                 
         st.markdown("<br/>", unsafe_allow_html=True)
