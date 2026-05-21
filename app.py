@@ -349,7 +349,7 @@ except Exception as e:
 # =====================================================================
 
 # Title Section
-st.markdown('<div class="main-header">💰 Controle financeiro</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header">Controle financeiro</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">Dashboard Financeiro Residencial Conectado à Nuvem</div>', unsafe_allow_html=True)
 
 if error_encountered:
