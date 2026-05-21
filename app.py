@@ -515,36 +515,11 @@ elif df_raw is not None:
         # -------------------------------------------------------------
         st.markdown("<p style='text-align: center; font-size: 0.95rem; font-weight: 600; color: #94A3B8; margin-bottom: 0.2rem; margin-top: 0.5rem;'>📅 Mês de Referência</p>", unsafe_allow_html=True)
         
-        # Centered grid structure: Spacer | Left Button | Selectbox | Right Button | Spacer
+        # Centered grid structure: Spacer | Left Button (Previous) | Month Display | Right Button (Next) | Spacer
         col_spacer1, col_left, col_sel, col_right, col_spacer2 = st.columns([2.2, 0.4, 2.8, 0.4, 2.2])
         
         with col_left:
-            # Seta para esquerda (>) -> próximo mês (current_index + 1)
-            btn_next = st.button(
-                ">", 
-                use_container_width=True, 
-                disabled=(current_index >= len(period_options) - 1),
-                key="btn_next_month"
-            )
-            if btn_next:
-                st.session_state.selected_month = period_options[current_index + 1]
-                st.rerun()
-                
-        with col_sel:
-            selected_month_str = st.selectbox(
-                label="Mês de Referência",
-                options=period_options,
-                index=current_index,
-                label_visibility="collapsed",
-                help="Selecione o mês desejado para atualizar as métricas, gráficos e lotes de pagamento."
-            )
-            # Sync user manual change with session state
-            if selected_month_str != st.session_state.selected_month:
-                st.session_state.selected_month = selected_month_str
-                st.rerun()
-            
-        with col_right:
-            # Seta para a direita (<) -> mês anterior (current_index - 1)
+            # Seta para a esquerda (<) -> mês anterior (current_index - 1)
             btn_prev = st.button(
                 "<", 
                 use_container_width=True, 
@@ -553,6 +528,43 @@ elif df_raw is not None:
             )
             if btn_prev:
                 st.session_state.selected_month = period_options[current_index - 1]
+                st.rerun()
+                
+        with col_sel:
+            # Exibe o mês e ano atual de forma estática e elegante (estilo pill premium)
+            st.markdown(
+                f"""
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 38px;
+                    font-size: 1.05rem;
+                    font-weight: 700;
+                    color: #F1F5F9;
+                    background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    text-align: center;
+                    width: 100%;
+                ">
+                    📅 {st.session_state.selected_month}
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            
+        with col_right:
+            # Seta para a direita (>) -> próximo mês (current_index + 1)
+            btn_next = st.button(
+                ">", 
+                use_container_width=True, 
+                disabled=(current_index >= len(period_options) - 1),
+                key="btn_next_month"
+            )
+            if btn_next:
+                st.session_state.selected_month = period_options[current_index + 1]
                 st.rerun()
                 
         st.markdown("<br/>", unsafe_allow_html=True)
