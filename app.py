@@ -428,15 +428,15 @@ elif df_raw is not None:
         col_spacer1, col_left, col_sel, col_right, col_spacer2 = st.columns([2.2, 0.4, 2.8, 0.4, 2.2])
         
         with col_left:
-            # Seta para esquerda -> mês anterior (current_index - 1)
-            btn_prev = st.button(
+            # Seta para esquerda (>) -> próximo mês (current_index + 1)
+            btn_next = st.button(
                 ">", 
                 use_container_width=True, 
-                disabled=(current_index <= 0),
-                key="btn_prev_month"
+                disabled=(current_index >= len(period_options) - 1),
+                key="btn_next_month"
             )
-            if btn_prev:
-                st.session_state.selected_month = period_options[current_index - 1]
+            if btn_next:
+                st.session_state.selected_month = period_options[current_index + 1]
                 st.rerun()
                 
         with col_sel:
@@ -453,15 +453,15 @@ elif df_raw is not None:
                 st.rerun()
             
         with col_right:
-            # Seta para a direita -> próximo mês (current_index + 1)
-            btn_next = st.button(
+            # Seta para a direita (<) -> mês anterior (current_index - 1)
+            btn_prev = st.button(
                 "<", 
                 use_container_width=True, 
-                disabled=(current_index >= len(period_options) - 1),
-                key="btn_next_month"
+                disabled=(current_index <= 0),
+                key="btn_prev_month"
             )
-            if btn_next:
-                st.session_state.selected_month = period_options[current_index + 1]
+            if btn_prev:
+                st.session_state.selected_month = period_options[current_index - 1]
                 st.rerun()
                 
         st.markdown("<br/>", unsafe_allow_html=True)
