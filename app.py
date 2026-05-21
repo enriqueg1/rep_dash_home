@@ -11,13 +11,13 @@ from datetime import datetime
 # 1. PAGE CONFIGURATION & CUSTOM STYLING (PREMIUM DESIGN)
 # =====================================================================
 st.set_page_config(
-    page_title="Finanças Residenciais • Dashboard",
+    page_title="Controle financeiro • Dashboard",
     page_icon="💰",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for Premium Design aesthetics
+# Custom CSS for Premium Design aesthetics (Strict Dark Theme)
 st.markdown("""
     <style>
         /* Import premium font */
@@ -25,35 +25,24 @@ st.markdown("""
         
         html, body, [class*="css"] {
             font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0F172A;
+            color: #F1F5F9;
         }
         
-        /* Metric Card Container Styling */
+        /* Metric Card Container Styling (Premium Dark Glassmorphism) */
         div[data-testid="stMetric"] {
-            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
             border-radius: 16px;
             padding: 20px 24px;
-            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease-in-out;
         }
         
         div[data-testid="stMetric"]:hover {
             transform: translateY(-4px);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Light mode support for metric cards */
-        @media (prefers-color-scheme: light) {
-            div[data-testid="stMetric"] {
-                background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
-                border: 1px solid #e5e7eb;
-                box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
-            }
-            div[data-testid="stMetric"]:hover {
-                border-color: #d1d5db;
-                box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08);
-            }
+            border-color: rgba(59, 130, 246, 0.4) !important;
+            box-shadow: 0 8px 30px 0 rgba(59, 130, 246, 0.15);
         }
         
         /* Header gradient styling */
@@ -67,7 +56,7 @@ st.markdown("""
             letter-spacing: -0.025em;
         }
         .sub-header {
-            color: #6B7280;
+            color: #94A3B8;
             font-size: 1.1rem;
             margin-bottom: 2rem;
             font-weight: 400;
@@ -83,11 +72,12 @@ st.markdown("""
         
         /* Custom alert box */
         .custom-card {
-            background-color: rgba(59, 130, 246, 0.05);
+            background-color: rgba(59, 130, 246, 0.1);
             border-left: 5px solid #3B82F6;
             padding: 15px;
             border-radius: 4px 12px 12px 4px;
             margin-bottom: 1.5rem;
+            color: #F1F5F9;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -359,7 +349,7 @@ except Exception as e:
 # =====================================================================
 
 # Title Section
-st.markdown('<div class="main-header">💰 Home Finanças</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header">💰 Controle financeiro</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">Dashboard Financeiro Residencial Conectado à Nuvem</div>', unsafe_allow_html=True)
 
 if error_encountered:

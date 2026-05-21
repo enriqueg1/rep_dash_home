@@ -16,8 +16,6 @@ venv/
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Streamlit specific
-.streamlit/config.toml
 
 # OS generated files
 .DS_Store
