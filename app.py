@@ -510,11 +510,6 @@ elif df_raw is not None:
             current_index = default_index
             st.session_state.selected_month = period_options[default_index]
 
-        # -------------------------------------------------------------
-        # MONTH FILTER SELECTOR AT THE TOP WITH ARROWS (CENTERED DESIGN)
-        # -------------------------------------------------------------
-        st.markdown("<p style='text-align: center; font-size: 0.95rem; font-weight: 600; color: #94A3B8; margin-bottom: 0.2rem; margin-top: 0.5rem;'>📅 Mês de Referência</p>", unsafe_allow_html=True)
-        
         # Centered grid structure: Spacer | Left Button (Previous) | Month Display | Right Button (Next) | Spacer
         col_spacer1, col_left, col_sel, col_right, col_spacer2 = st.columns([2.2, 0.4, 2.8, 0.4, 2.2])
         
