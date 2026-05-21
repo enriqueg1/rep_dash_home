@@ -51,7 +51,7 @@ st.markdown("""
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 800;
-            font-size: 2.8rem;
+            font-size: 2.2rem;
             margin-bottom: 0.2rem;
             letter-spacing: -0.025em;
         }
@@ -350,7 +350,6 @@ except Exception as e:
 
 # Title Section
 st.markdown('<div class="main-header">Controle financeiro</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Dashboard Financeiro Residencial Conectado à Nuvem</div>', unsafe_allow_html=True)
 
 if error_encountered:
     st.error("### 🛑 Erro de Conexão ou Carregamento")
@@ -409,17 +408,64 @@ elif df_raw is not None:
             period_options = [current_period_str]
             default_index = 0
             
+        # Initialize the session state for selected_month_index
+        if 'selected_month_index' not in st.session_state:
+            st.session_state.selected_month_index = default_index
+            
+        # Ensure selected_month_index is within bounds
+        if st.session_state.selected_month_index < 0:
+            st.session_state.selected_month_index = 0
+        elif st.session_state.selected_month_index >= len(period_options):
+            st.session_state.selected_month_index = len(period_options) - 1
+            
+        def on_month_change():
+            val = st.session_state.month_select_val
+            if val in period_options:
+                st.session_state.selected_month_index = period_options.index(val)
+
         # -------------------------------------------------------------
-        # MONTH FILTER SELECTOR AT THE TOP
+        # MONTH FILTER SELECTOR AT THE TOP WITH ARROWS
         # -------------------------------------------------------------
-        col_select, col_info = st.columns([1.2, 2.8])
-        with col_select:
+        st.markdown("<p style='font-size: 0.95rem; font-weight: 600; color: #94A3B8; margin-bottom: 0.5rem; margin-top: 0.5rem;'>📅 Mês de Referência</p>", unsafe_allow_html=True)
+        
+        # Grid structure: Left Button | Selectbox | Right Button | Spacer
+        col_left, col_sel, col_right, col_spacer = st.columns([0.8, 2.0, 0.8, 4.4])
+        
+        with col_left:
+            # Seta para esquerda -> próximo mês (index + 1)
+            btn_next = st.button(
+                "⬅️ Próximo", 
+                use_container_width=True, 
+                disabled=(st.session_state.selected_month_index >= len(period_options) - 1),
+                key="btn_next_month"
+            )
+            if btn_next:
+                st.session_state.selected_month_index += 1
+                st.rerun()
+                
+        with col_sel:
             selected_month_str = st.selectbox(
-                "📅 Selecionar Mês de Referência:",
+                label="Mês de Referência",
                 options=period_options,
-                index=default_index,
+                index=st.session_state.selected_month_index,
+                key="month_select_val",
+                on_change=on_month_change,
+                label_visibility="collapsed",
                 help="Selecione o mês desejado para atualizar as métricas, gráficos e lotes de pagamento."
             )
+            
+        with col_right:
+            # Seta para a direita -> mês anterior (index - 1)
+            btn_prev = st.button(
+                "Anterior ➡️", 
+                use_container_width=True, 
+                disabled=(st.session_state.selected_month_index <= 0),
+                key="btn_prev_month"
+            )
+            if btn_prev:
+                st.session_state.selected_month_index -= 1
+                st.rerun()
+                
         st.markdown("<br/>", unsafe_allow_html=True)
         
         # Parse selected month & year to filter the dataframe
