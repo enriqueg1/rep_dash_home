@@ -420,23 +420,23 @@ elif df_raw is not None:
             st.session_state.month_select_val = period_options[default_index]
 
         # -------------------------------------------------------------
-        # MONTH FILTER SELECTOR AT THE TOP WITH ARROWS
+        # MONTH FILTER SELECTOR AT THE TOP WITH ARROWS (CENTERED DESIGN)
         # -------------------------------------------------------------
-        st.markdown("<p style='font-size: 0.95rem; font-weight: 600; color: #94A3B8; margin-bottom: 0.2rem; margin-top: 0.5rem;'>📅 Mês de Referência</p>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; font-size: 0.95rem; font-weight: 600; color: #94A3B8; margin-bottom: 0.2rem; margin-top: 0.5rem;'>📅 Mês de Referência</p>", unsafe_allow_html=True)
         
-        # Grid structure: Left Button | Selectbox | Right Button | Spacer
-        col_left, col_sel, col_right, col_spacer = st.columns([0.4, 2.0, 0.4, 5.2])
+        # Centered grid structure: Spacer | Left Button | Selectbox | Right Button | Spacer
+        col_spacer1, col_left, col_sel, col_right, col_spacer2 = st.columns([2.2, 0.4, 2.8, 0.4, 2.2])
         
         with col_left:
-            # Seta para esquerda (<) -> próximo mês (current_index + 1)
-            btn_next = st.button(
+            # Seta para esquerda (<) -> mês anterior (current_index - 1)
+            btn_prev = st.button(
                 "<", 
                 use_container_width=True, 
-                disabled=(current_index >= len(period_options) - 1),
-                key="btn_next_month"
+                disabled=(current_index <= 0),
+                key="btn_prev_month"
             )
-            if btn_next:
-                st.session_state.month_select_val = period_options[current_index + 1]
+            if btn_prev:
+                st.session_state.month_select_val = period_options[current_index - 1]
                 st.rerun()
                 
         with col_sel:
@@ -450,15 +450,15 @@ elif df_raw is not None:
             )
             
         with col_right:
-            # Seta para a direita (>) -> mês anterior (current_index - 1)
-            btn_prev = st.button(
+            # Seta para a direita (>) -> próximo mês (current_index + 1)
+            btn_next = st.button(
                 ">", 
                 use_container_width=True, 
-                disabled=(current_index <= 0),
-                key="btn_prev_month"
+                disabled=(current_index >= len(period_options) - 1),
+                key="btn_next_month"
             )
-            if btn_prev:
-                st.session_state.month_select_val = period_options[current_index - 1]
+            if btn_next:
+                st.session_state.month_select_val = period_options[current_index + 1]
                 st.rerun()
                 
         st.markdown("<br/>", unsafe_allow_html=True)
