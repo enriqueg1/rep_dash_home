@@ -509,8 +509,8 @@ elif df_raw is not None:
         with chart_col2:
             # Lote Pending Totals (Plotly Bar Chart)
             lote_totals = pd.DataFrame([
-                {'Lote': 'Dia 15', 'Valor_Clean': df_pending[df_pending['Lote_Tipo'] == 'Dia 15']['Valor_Clean'].sum()},
-                {'Lote': 'Dia 30', 'Valor_Clean': df_pending[df_pending['Lote_Tipo'] == 'Dia 30']['Valor_Clean'].sum()}
+                {'Lote': 'Vale (Dia 15)', 'Valor_Clean': df_pending[df_pending['Lote_Tipo'] == 'Dia 15']['Valor_Clean'].sum()},
+                {'Lote': 'Pagamento (Dia 30)', 'Valor_Clean': df_pending[df_pending['Lote_Tipo'] == 'Dia 30']['Valor_Clean'].sum()}
             ])
             
             if lote_totals['Valor_Clean'].sum() > 0:
@@ -519,9 +519,9 @@ elif df_raw is not None:
                     x='Lote',
                     y='Valor_Clean',
                     color='Lote',
-                    title="Previsão de Saída por Lote Salário (R$)",
-                    labels={'Valor_Clean': 'Valor Pendente (R$)', 'Lote': 'Lote Salário'},
-                    color_discrete_map={'Dia 15': '#3B82F6', 'Dia 30': '#8B5CF6'}
+                    title="Previsão de Saída: Vale vs Pagamento (R$)",
+                    labels={'Valor_Clean': 'Valor Pendente (R$)', 'Lote': 'Período'},
+                    color_discrete_map={'Vale (Dia 15)': '#3B82F6', 'Pagamento (Dia 30)': '#8B5CF6'}
                 )
                 fig_lote.update_layout(
                     margin=dict(t=40, b=10, l=10, r=10),
@@ -558,7 +558,7 @@ elif df_raw is not None:
                 # Display sum in a nice highlighted box
                 st.markdown(
                     f"<div style='background-color: rgba(59, 130, 246, 0.05); padding: 12px 18px; border-radius: 12px; margin-bottom: 1.2rem; border: 1px solid rgba(59, 130, 246, 0.1);'>"
-                    f"💰 Total Provisão do Lote: <span style='font-size:1.3rem; font-weight:700; color: #3B82F6;'>R$ {total_lote:,.2f}</span>"
+                    f"💰 Total Provisionado ({title}): <span style='font-size:1.3rem; font-weight:700; color: #3B82F6;'>R$ {total_lote:,.2f}</span>"
                     f"</div>".replace(',', 'X').replace('.', ',').replace('X', '.'),
                     unsafe_allow_html=True
                 )
@@ -679,16 +679,16 @@ elif df_raw is not None:
         df_pending_30 = df_pending[df_pending['Lote_Tipo'] == 'Dia 30']
         
         # Create Streamlit tabs
-        tab15, tab30 = st.tabs(["💰 Lote Salário Dia 15", "💰 Lote Salário Dia 30"])
+        tab15, tab30 = st.tabs(["💰 Vale (Dia 15)", "💰 Pagamento (Dia 30)"])
         
         with tab15:
-            st.markdown("#### Lote de Contas - Salário do Dia 15")
-            render_pending_table(df_pending_15, "Lote Salário Dia 15")
+            st.markdown("#### Contas do Vale (Dia 15)")
+            render_pending_table(df_pending_15, "Vale (Dia 15)")
             
         with tab30:
-            st.markdown("#### Lote de Contas - Salário do Dia 30")
-            st.caption("ℹ️ *Nota: Este lote inclui as contas que vencem nos dias 29 a 31 do mês atual, bem como as contas de 1 a 14 do próximo mês que são provisionadas antecipadamente.*")
-            render_pending_table(df_pending_30, "Lote Salário Dia 30")
+            st.markdown("#### Contas do Pagamento (Dia 30)")
+            st.caption("ℹ️ *Nota: Esta aba inclui as contas que vencem nos dias 29 a 31 do mês atual, bem como as contas de 1 a 14 do próximo mês que são provisionadas antecipadamente.*")
+            render_pending_table(df_pending_30, "Pagamento (Dia 30)")
             
 
             
