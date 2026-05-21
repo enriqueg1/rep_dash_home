@@ -497,7 +497,10 @@ elif df_raw is not None:
                     showlegend=False,
                     paper_bgcolor='rgba(0,0,0,0)',
                     plot_bgcolor='rgba(0,0,0,0)',
-                    font=dict(family="Plus Jakarta Sans", size=12)
+                    font=dict(family="Plus Jakarta Sans", size=12),
+                    xaxis=dict(fixedrange=True),
+                    yaxis=dict(fixedrange=True),
+                    dragmode=False
                 )
                 st.plotly_chart(fig_bar, use_container_width=True, config={'displayModeBar': False})
             else:
@@ -526,7 +529,10 @@ elif df_raw is not None:
                     showlegend=False,
                     paper_bgcolor='rgba(0,0,0,0)',
                     plot_bgcolor='rgba(0,0,0,0)',
-                    font=dict(family="Plus Jakarta Sans", size=12)
+                    font=dict(family="Plus Jakarta Sans", size=12),
+                    xaxis=dict(fixedrange=True),
+                    yaxis=dict(fixedrange=True),
+                    dragmode=False
                 )
                 fig_lote.update_traces(
                     texttemplate='R$ %{y:,.2f}',
@@ -662,26 +668,7 @@ elif df_raw is not None:
                         hide_index=True
                     )
                     
-                    # Local expander for individual detailed pending bills inside this lote
-                    with st.expander(f"🔍 Detalhar Itens Pendentes do {title} (Individual)"):
-                        st.markdown("Confira a lista completa e de cada conta individual deste lote:")
-                        df_pending_sorted = df_pending_processed.sort_values(by='Vencimento_Parsed', ascending=True)
-                        df_pending_display = df_pending_sorted[['Descrição', 'Valor_Clean', 'Vencimento_Parsed', 'Categoria', 'Conta', 'Cartão']].copy()
-                        df_pending_display.columns = ['Descrição', 'Valor (R$)', 'Vencimento', 'Categoria', 'Conta', 'Cartão']
-                        
-                        st.dataframe(
-                            df_pending_display,
-                            column_config={
-                                "Descrição": st.column_config.TextColumn("Descrição", width="medium"),
-                                "Valor (R$)": st.column_config.NumberColumn("Valor (R$)", format="R$ %.2f", width="small"),
-                                "Vencimento": st.column_config.DateColumn("Vencimento", format="DD/MM/YYYY", width="medium"),
-                                "Categoria": st.column_config.TextColumn("Categoria", width="small"),
-                                "Conta": st.column_config.TextColumn("Conta", width="small"),
-                                "Cartão": st.column_config.TextColumn("Cartão", width="small")
-                            },
-                            use_container_width=True,
-                            hide_index=True
-                        )
+
                 else:
                     st.success(f"🎉 Nenhuma conta pendente encontrada para este lote.")
             else:
@@ -703,30 +690,7 @@ elif df_raw is not None:
             st.caption("ℹ️ *Nota: Este lote inclui as contas que vencem nos dias 29 a 31 do mês atual, bem como as contas de 1 a 14 do próximo mês que são provisionadas antecipadamente.*")
             render_pending_table(df_pending_30, "Lote Salário Dia 30")
             
-        # -------------------------------------------------------------
-        # EXPANDABLE TAB FOR ALL REGISTERED TRANSACTIONS
-        # -------------------------------------------------------------
-        with st.expander("🔍 Visualizar Todos os Registros (Base Completa)"):
-            st.markdown("Aqui você pode verificar a planilha original completa com todas as contas:")
-            
-            # Format and display the entire table
-            df_all_display = df_cleaned.copy()
-            
-            # Use appropriate color indicators for statuses
-            st.dataframe(
-                df_all_display[['Descrição', 'Valor_Clean', 'Vencimento_Parsed', 'Status', 'Efetivação', 'Categoria', 'Conta']],
-                column_config={
-                    "Descrição": "Descrição",
-                    "Valor_Clean": st.column_config.NumberColumn("Valor (R$)", format="R$ %.2f"),
-                    "Vencimento_Parsed": st.column_config.DateColumn("Vencimento", format="DD/MM/YYYY"),
-                    "Status": st.column_config.TextColumn("Status"),
-                    "Efetivação": "Efetivação",
-                    "Categoria": "Categoria",
-                    "Conta": "Conta"
-                },
-                use_container_width=True,
-                hide_index=True
-            )
+
             
     except Exception as e:
         st.error(f"### 🛑 Erro ao processar os dados")
