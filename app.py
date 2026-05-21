@@ -441,7 +441,19 @@ elif df_raw is not None:
         
         total_pago = df_paid['Valor_Clean'].sum()
         total_pendente = df_pending['Valor_Clean'].sum()
-        qtd_pendentes = len(df_pending)
+        # Calculate grouped pending count (treating each unique credit card as 1 single bill)
+        if not df_pending.empty:
+            if 'Cartão' in df_pending.columns:
+                df_pending_temp = df_pending.copy()
+                df_pending_temp['Cartão'] = df_pending_temp['Cartão'].fillna('-').astype(str).str.strip()
+                is_card = ~df_pending_temp['Cartão'].isin(['', '-', 'nan', 'None'])
+                df_cards = df_pending_temp[is_card]
+                df_no_cards = df_pending_temp[~is_card]
+                qtd_pendentes = df_cards['Cartão'].nunique() + len(df_no_cards)
+            else:
+                qtd_pendentes = len(df_pending)
+        else:
+            qtd_pendentes = 0
         
         # -------------------------------------------------------------
         # METRIC CARDS (st.columns)
@@ -466,7 +478,7 @@ elif df_raw is not None:
             st.metric(
                 label="📅 Contas a Pagar",
                 value=f"{qtd_pendentes} contas",
-                help="Quantidade de lançamentos com pagamento pendente."
+                help="Quantidade de contas pendentes (com faturas de cartão agrupadas de forma consolidada)."
             )
             
         st.markdown("<br/>", unsafe_allow_html=True)
