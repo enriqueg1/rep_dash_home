@@ -48,7 +48,7 @@ st.markdown("""
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 115px;
+            min-height: 130px;
         }
         
         div[data-testid="stMetric"]:hover, .metric-card:hover {
@@ -77,8 +77,7 @@ st.markdown("""
             font-size: 0.85rem !important;
             color: #94A3B8 !important;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
+            flex-direction: column !important;
             gap: 4px;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
             padding-top: 6px;
@@ -153,7 +152,7 @@ st.markdown("""
             .metric-card {
                 padding: 8px 8px !important;
                 border-radius: 8px !important;
-                min-height: 100px;
+                min-height: 120px;
             }
             .metric-card-label {
                 font-size: 0.7rem !important;
@@ -601,7 +600,7 @@ elif df_raw is not None:
         total_pendente_15_fmt = f"R$ {total_pendente_15:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
         total_pendente_30_fmt = f"R$ {total_pendente_30:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
         
-        col1, col2 = st.columns(2)
+        col1, col2 = st.columns(2, gap="medium")
         
         with col1:
             col1.markdown(
