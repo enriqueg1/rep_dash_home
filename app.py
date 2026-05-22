@@ -597,29 +597,14 @@ elif df_raw is not None:
         qtd_pendentes_30 = get_pending_count(df_pending_30)
         
         # Formatting values
-        total_pago_fmt = f"R$ {total_pago:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
         total_pendente_fmt = f"R$ {total_pendente:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
         total_pendente_15_fmt = f"R$ {total_pendente_15:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
         total_pendente_30_fmt = f"R$ {total_pendente_30:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
         
-        col1, col2, col3 = st.columns(3)
+        col1, col2 = st.columns(2)
         
         with col1:
             col1.markdown(
-                f"""
-                <div class="metric-card">
-                    <div class="metric-card-label" title="Soma de todos os lançamentos que contêm uma data válida de Efetivação.">🟢 Total Pago</div>
-                    <div class="metric-card-value">{total_pago_fmt}</div>
-                    <div class="metric-card-sub" style="border-top: none; padding-top: 0; opacity: 0;">
-                        <span>&nbsp;</span>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-            
-        with col2:
-            col2.markdown(
                 f"""
                 <div class="metric-card">
                     <div class="metric-card-label" title="Soma de todos os lançamentos com coluna Efetivação vazia ou contendo '-'.">🟡 Total Pendente (A Pagar)</div>
@@ -633,12 +618,12 @@ elif df_raw is not None:
                 unsafe_allow_html=True
             )
             
-        with col3:
+        with col2:
             contas_word = "conta" if qtd_pendentes == 1 else "contas"
             contas_word_15 = "item" if qtd_pendentes_15 == 1 else "itens"
             contas_word_30 = "item" if qtd_pendentes_30 == 1 else "itens"
             
-            col3.markdown(
+            col2.markdown(
                 f"""
                 <div class="metric-card">
                     <div class="metric-card-label" title="Quantidade de contas pendentes (com faturas de cartão agrupadas de forma consolidada).">📅 Contas a Pagar</div>
