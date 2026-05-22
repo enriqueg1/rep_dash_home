@@ -640,79 +640,6 @@ elif df_raw is not None:
         st.markdown("<br/>", unsafe_allow_html=True)
         
         # -------------------------------------------------------------
-        # CHARTS VISUALIZATIONS SECTION (PREMIUM WOW FACTOR)
-        # -------------------------------------------------------------
-        # Add visual summaries to delight the user and provide maximum value
-        st.markdown("### 📊 Visão Geral das Despesas")
-        chart_col1, chart_col2 = st.columns([1, 1])
-        
-        with chart_col1:
-            # Paid vs Pending stacked or comparison (Plotly Bar Chart)
-            status_totals = df_filtered.groupby('Status')['Valor_Clean'].sum().reset_index()
-            if not status_totals.empty:
-                fig_bar = px.bar(
-                    status_totals,
-                    x='Status',
-                    y='Valor_Clean',
-                    color='Status',
-                    title="Comparativo: Pago vs Pendente (R$)",
-                    labels={'Valor_Clean': 'Valor (R$)'},
-                    color_discrete_map={'Paga': '#10B981', 'Pendente': '#F59E0B'}
-                )
-                fig_bar.update_layout(
-                    margin=dict(t=40, b=10, l=10, r=10),
-                    height=300,
-                    showlegend=False,
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    font=dict(family="Plus Jakarta Sans", size=12),
-                    xaxis=dict(fixedrange=True),
-                    yaxis=dict(fixedrange=True),
-                    dragmode=False
-                )
-                st.plotly_chart(fig_bar, use_container_width=True, config={'displayModeBar': False})
-            else:
-                st.info("Sem dados suficientes para exibir comparativo.")
-                
-        with chart_col2:
-            # Lote Pending Totals (Plotly Bar Chart)
-            lote_totals = pd.DataFrame([
-                {'Lote': 'Vale (Dia 15)', 'Valor_Clean': df_pending[df_pending['Lote_Tipo'] == 'Dia 15']['Valor_Clean'].sum()},
-                {'Lote': 'Pagamento (Dia 30)', 'Valor_Clean': df_pending[df_pending['Lote_Tipo'] == 'Dia 30']['Valor_Clean'].sum()}
-            ])
-            
-            if lote_totals['Valor_Clean'].sum() > 0:
-                fig_lote = px.bar(
-                    lote_totals,
-                    x='Lote',
-                    y='Valor_Clean',
-                    color='Lote',
-                    title="Previsão de Saída: Vale vs Pagamento (R$)",
-                    labels={'Valor_Clean': 'Valor Pendente (R$)', 'Lote': 'Período'},
-                    color_discrete_map={'Vale (Dia 15)': '#3B82F6', 'Pagamento (Dia 30)': '#8B5CF6'}
-                )
-                fig_lote.update_layout(
-                    margin=dict(t=40, b=10, l=10, r=10),
-                    height=300,
-                    showlegend=False,
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    font=dict(family="Plus Jakarta Sans", size=12),
-                    xaxis=dict(fixedrange=True),
-                    yaxis=dict(fixedrange=True),
-                    dragmode=False
-                )
-                fig_lote.update_traces(
-                    texttemplate='R$ %{y:,.2f}',
-                    textposition='outside'
-                )
-                st.plotly_chart(fig_lote, use_container_width=True, config={'displayModeBar': False})
-            else:
-                st.info("Nenhuma despesa pendente no mês para exibir a previsão por lote.")
-                
-        st.markdown("<br/>", unsafe_allow_html=True)
-        
-        # -------------------------------------------------------------
         # TABLE OF PENDING BILLS: SPLIT IN TWO PAYDAY TABS (Dia 15 & Dia 30)
         # -------------------------------------------------------------
         st.markdown("### 📋 Próximas Contas a Pagar")
@@ -855,6 +782,79 @@ elif df_raw is not None:
             
         with tab30:
             render_pending_table(df_pending_30, "Pagamento (Dia 30)")
+            
+        st.markdown("<br/><br/>", unsafe_allow_html=True)
+        
+        # -------------------------------------------------------------
+        # CHARTS VISUALIZATIONS SECTION (PREMIUM WOW FACTOR)
+        # -------------------------------------------------------------
+        # Add visual summaries to delight the user and provide maximum value
+        st.markdown("### 📊 Visão Geral das Despesas")
+        chart_col1, chart_col2 = st.columns([1, 1])
+        
+        with chart_col1:
+            # Paid vs Pending stacked or comparison (Plotly Bar Chart)
+            status_totals = df_filtered.groupby('Status')['Valor_Clean'].sum().reset_index()
+            if not status_totals.empty:
+                fig_bar = px.bar(
+                    status_totals,
+                    x='Status',
+                    y='Valor_Clean',
+                    color='Status',
+                    title="Comparativo: Pago vs Pendente (R$)",
+                    labels={'Valor_Clean': 'Valor (R$)'},
+                    color_discrete_map={'Paga': '#10B981', 'Pendente': '#F59E0B'}
+                )
+                fig_bar.update_layout(
+                    margin=dict(t=40, b=10, l=10, r=10),
+                    height=300,
+                    showlegend=False,
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    font=dict(family="Plus Jakarta Sans", size=12),
+                    xaxis=dict(fixedrange=True),
+                    yaxis=dict(fixedrange=True),
+                    dragmode=False
+                )
+                st.plotly_chart(fig_bar, use_container_width=True, config={'displayModeBar': False})
+            else:
+                st.info("Sem dados suficientes para exibir comparativo.")
+                
+        with chart_col2:
+            # Lote Pending Totals (Plotly Bar Chart)
+            lote_totals = pd.DataFrame([
+                {'Lote': 'Vale (Dia 15)', 'Valor_Clean': df_pending[df_pending['Lote_Tipo'] == 'Dia 15']['Valor_Clean'].sum()},
+                {'Lote': 'Pagamento (Dia 30)', 'Valor_Clean': df_pending[df_pending['Lote_Tipo'] == 'Dia 30']['Valor_Clean'].sum()}
+            ])
+            
+            if lote_totals['Valor_Clean'].sum() > 0:
+                fig_lote = px.bar(
+                    lote_totals,
+                    x='Lote',
+                    y='Valor_Clean',
+                    color='Lote',
+                    title="Previsão de Saída: Vale vs Pagamento (R$)",
+                    labels={'Valor_Clean': 'Valor Pendente (R$)', 'Lote': 'Período'},
+                    color_discrete_map={'Vale (Dia 15)': '#3B82F6', 'Pagamento (Dia 30)': '#8B5CF6'}
+                )
+                fig_lote.update_layout(
+                    margin=dict(t=40, b=10, l=10, r=10),
+                    height=300,
+                    showlegend=False,
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    font=dict(family="Plus Jakarta Sans", size=12),
+                    xaxis=dict(fixedrange=True),
+                    yaxis=dict(fixedrange=True),
+                    dragmode=False
+                )
+                fig_lote.update_traces(
+                    texttemplate='R$ %{y:,.2f}',
+                    textposition='outside'
+                )
+                st.plotly_chart(fig_lote, use_container_width=True, config={'displayModeBar': False})
+            else:
+                st.info("Nenhuma despesa pendente no mês para exibir a previsão por lote.")
             
 
             
