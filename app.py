@@ -637,12 +637,13 @@ elif df_raw is not None:
             if len(df_lote_pending) > 0:
                 # Calculate sum total
                 total_lote = df_lote_pending['Valor_Clean'].sum()
+                total_formatted = f"R$ {total_lote:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
                 
                 # Display sum in a nice highlighted box
                 st.markdown(
                     f"<div style='background-color: rgba(59, 130, 246, 0.05); padding: 12px 18px; border-radius: 12px; margin-bottom: 1.2rem; border: 1px solid rgba(59, 130, 246, 0.1);'>"
-                    f"💰 Total Provisionado ({title}): <span style='font-size:1.3rem; font-weight:700; color: #3B82F6;'>R$ {total_lote:,.2f}</span>"
-                    f"</div>".replace(',', 'X').replace('.', ',').replace('X', '.'),
+                    f"Total de despesas: <span style='font-size:1.3rem; font-weight:700; color: #3B82F6;'>{total_formatted}</span>"
+                    f"</div>",
                     unsafe_allow_html=True
                 )
                 
@@ -765,12 +766,9 @@ elif df_raw is not None:
         tab15, tab30 = st.tabs(["💰 Vale (Dia 15)", "💰 Pagamento (Dia 30)"])
         
         with tab15:
-            st.markdown("#### Contas do Vale (Dia 15)")
             render_pending_table(df_pending_15, "Vale (Dia 15)")
             
         with tab30:
-            st.markdown("#### Contas do Pagamento (Dia 30)")
-            st.caption("ℹ️ *Nota: Esta aba inclui as contas que vencem nos dias 29 a 31 do mês atual, bem como as contas de 1 a 14 do próximo mês que são provisionadas antecipadamente.*")
             render_pending_table(df_pending_30, "Pagamento (Dia 30)")
             
 
