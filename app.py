@@ -38,31 +38,55 @@ st.markdown("""
         }
         
         /* Metric Card Container Styling (Compact Premium Dark Glassmorphism) */
-        div[data-testid="stMetric"] {
+        div[data-testid="stMetric"], .metric-card {
             background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%) !important;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
             border-radius: 12px !important;
-            padding: 10px 14px !important;
+            padding: 12px 14px !important;
             box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 115px;
         }
         
-        div[data-testid="stMetric"]:hover {
+        div[data-testid="stMetric"]:hover, .metric-card:hover {
             transform: translateY(-2px);
             border-color: rgba(59, 130, 246, 0.4) !important;
             box-shadow: 0 8px 30px 0 rgba(59, 130, 246, 0.15);
         }
         
         /* Compact typography for metric labels and values */
-        div[data-testid="stMetricLabel"] {
+        div[data-testid="stMetricLabel"], .metric-card-label {
             font-size: 0.82rem !important;
             font-weight: 600 !important;
             color: #94A3B8 !important;
+            margin-bottom: 4px;
         }
         
-        div[data-testid="stMetricValue"] {
+        div[data-testid="stMetricValue"], .metric-card-value {
             font-size: 1.4rem !important;
             font-weight: 700 !important;
+            color: #F1F5F9 !important;
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+        
+        .metric-card-sub {
+            font-size: 0.72rem !important;
+            color: #94A3B8 !important;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 4px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 6px;
+            margin-top: auto;
+        }
+        
+        .metric-card-sub span {
+            white-space: nowrap;
         }
         
         /* Header gradient styling (centered and compact) */
@@ -122,6 +146,26 @@ st.markdown("""
         .main-header {
             font-size: 1.35rem;
             margin-bottom: 0.3rem;
+        }
+        
+        /* Mobile styles for custom metric cards */
+        @media (max-width: 768px) {
+            .metric-card {
+                padding: 8px 8px !important;
+                border-radius: 8px !important;
+                min-height: 100px;
+            }
+            .metric-card-label {
+                font-size: 0.7rem !important;
+            }
+            .metric-card-value {
+                font-size: 0.95rem !important;
+            }
+            .metric-card-sub {
+                font-size: 0.65rem !important;
+                gap: 2px;
+                padding-top: 4px;
+            }
         }
     </style>
 """, unsafe_allow_html=True)
@@ -527,29 +571,85 @@ elif df_raw is not None:
             qtd_pendentes = 0
         
         # -------------------------------------------------------------
-        # METRIC CARDS (st.columns)
+        # METRIC CARDS (st.columns with Custom Premium HTML Cards)
         # -------------------------------------------------------------
+        # Calculate sub-totals and sub-counts for pending lots (Dia 15 and Dia 30)
+        df_pending_15 = df_pending[df_pending['Lote_Tipo'] == 'Dia 15']
+        df_pending_30 = df_pending[df_pending['Lote_Tipo'] == 'Dia 30']
+        
+        total_pendente_15 = df_pending_15['Valor_Clean'].sum()
+        total_pendente_30 = df_pending_30['Valor_Clean'].sum()
+        
+        def get_pending_count(df_sub_pending):
+            if not df_sub_pending.empty:
+                if 'Cartão' in df_sub_pending.columns:
+                    df_temp = df_sub_pending.copy()
+                    df_temp['Cartão'] = df_temp['Cartão'].fillna('-').astype(str).str.strip()
+                    is_card = ~df_temp['Cartão'].isin(['', '-', 'nan', 'None'])
+                    df_cards = df_temp[is_card]
+                    df_no_cards = df_temp[~is_card]
+                    return df_cards['Cartão'].nunique() + len(df_no_cards)
+                else:
+                    return len(df_sub_pending)
+            return 0
+            
+        qtd_pendentes_15 = get_pending_count(df_pending_15)
+        qtd_pendentes_30 = get_pending_count(df_pending_30)
+        
+        # Formatting values
+        total_pago_fmt = f"R$ {total_pago:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+        total_pendente_fmt = f"R$ {total_pendente:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+        total_pendente_15_fmt = f"R$ {total_pendente_15:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+        total_pendente_30_fmt = f"R$ {total_pendente_30:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+        
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.metric(
-                label="🟢 Total Pago",
-                value=f"R$ {total_pago:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'),
-                help="Soma de todos os lançamentos que contêm uma data válida de Efetivação."
+            col1.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-card-label" title="Soma de todos os lançamentos que contêm uma data válida de Efetivação.">🟢 Total Pago</div>
+                    <div class="metric-card-value">{total_pago_fmt}</div>
+                    <div class="metric-card-sub" style="border-top: none; padding-top: 0; opacity: 0;">
+                        <span>&nbsp;</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
             )
             
         with col2:
-            st.metric(
-                label="🟡 Total Pendente (A Pagar)",
-                value=f"R$ {total_pendente:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'),
-                help="Soma de todos os lançamentos com coluna Efetivação vazia ou contendo '-'."
+            col2.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-card-label" title="Soma de todos os lançamentos com coluna Efetivação vazia ou contendo '-'.">🟡 Total Pendente (A Pagar)</div>
+                    <div class="metric-card-value">{total_pendente_fmt}</div>
+                    <div class="metric-card-sub">
+                        <span>Dia 15: <strong>{total_pendente_15_fmt}</strong></span>
+                        <span>Dia 30: <strong>{total_pendente_30_fmt}</strong></span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
             )
             
         with col3:
-            st.metric(
-                label="📅 Contas a Pagar",
-                value=f"{qtd_pendentes} contas",
-                help="Quantidade de contas pendentes (com faturas de cartão agrupadas de forma consolidada)."
+            contas_word = "conta" if qtd_pendentes == 1 else "contas"
+            contas_word_15 = "item" if qtd_pendentes_15 == 1 else "itens"
+            contas_word_30 = "item" if qtd_pendentes_30 == 1 else "itens"
+            
+            col3.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-card-label" title="Quantidade de contas pendentes (com faturas de cartão agrupadas de forma consolidada).">📅 Contas a Pagar</div>
+                    <div class="metric-card-value">{qtd_pendentes} {contas_word}</div>
+                    <div class="metric-card-sub">
+                        <span>Dia 15: <strong>{qtd_pendentes_15} {contas_word_15}</strong></span>
+                        <span>Dia 30: <strong>{qtd_pendentes_30} {contas_word_30}</strong></span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
             )
             
         st.markdown("<br/>", unsafe_allow_html=True)
