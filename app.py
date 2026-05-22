@@ -74,7 +74,7 @@ st.markdown("""
         }
         
         .metric-card-sub {
-            font-size: 0.72rem !important;
+            font-size: 0.85rem !important;
             color: #94A3B8 !important;
             display: flex;
             flex-wrap: wrap;
@@ -162,7 +162,7 @@ st.markdown("""
                 font-size: 0.95rem !important;
             }
             .metric-card-sub {
-                font-size: 0.65rem !important;
+                font-size: 0.78rem !important;
                 gap: 2px;
                 padding-top: 4px;
             }
