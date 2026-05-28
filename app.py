@@ -339,8 +339,8 @@ def process_financial_data(df):
 
     df['Valor_Clean'] = df['Valor'].apply(parse_valor)
     
-    # Rule 3: Convert 'Vencimento' to datetime (format DD/MM/AAAA)
-    df['Vencimento_Parsed'] = pd.to_datetime(df['Vencimento'], format='%d/%m/%Y', errors='coerce')
+    # Rule 3: Convert 'Vencimento' to datetime robustly (format='mixed' allows both DD/MM/YYYY and YYYY-MM-DD)
+    df['Vencimento_Parsed'] = pd.to_datetime(df['Vencimento'], format='mixed', errors='coerce')
     
     # Check for invalid dates in 'Vencimento'
     invalid_vencimento = df['Vencimento_Parsed'].isna() & df['Vencimento'].notna() & (df['Vencimento'].astype(str).str.strip() != '')
@@ -351,19 +351,21 @@ def process_financial_data(df):
         )
 
     # Rules 1 & 2: Process payment status based on 'Efetivação'
-    # "Pendente/A Pagar" if empty (NaN) or contains '-'
+    # "Pendente/A Pagar" if empty (NaN), contains '-', en-dash '–', em-dash '—' or is empty/nan
     efetivacao_clean = df['Efetivação'].astype(str).str.strip()
     is_pending = (
         df['Efetivação'].isna() | 
         (efetivacao_clean == '-') | 
+        (efetivacao_clean == '–') | 
+        (efetivacao_clean == '—') | 
         (efetivacao_clean == '') | 
         (efetivacao_clean.str.lower() == 'nan')
     )
     
     df['Status'] = np.where(is_pending, 'Pendente', 'Paga')
     
-    # Convert 'Efetivação' to datetime for analytical metrics if needed
-    df['Efetivação_Parsed'] = pd.to_datetime(df['Efetivação'], format='%d/%m/%Y', errors='coerce')
+    # Convert 'Efetivação' to datetime for analytical metrics robustly if needed
+    df['Efetivação_Parsed'] = pd.to_datetime(df['Efetivação'], format='mixed', errors='coerce')
     
     # -----------------------------------------------------------------
     # Lote Payday Dynamic Classification Rule
