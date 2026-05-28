@@ -962,6 +962,23 @@ elif df_raw_expenses is not None and df_raw_revenues is not None:
         else:
             st.info("Sem dados suficientes de despesas ou receitas pendentes para exibir o fluxo neste período.")
             
+        # -------------------------------------------------------------
+        # DIAGNOSTIC PANEL (DEBUG EXPANDER)
+        # -------------------------------------------------------------
+        st.markdown("<br/>", unsafe_allow_html=True)
+        with st.expander("🔍 Painel de Diagnóstico (Debug)"):
+            st.write(f"**Total de linhas carregadas do arquivo de Despesas:** {len(df_cleaned_expenses)}")
+            if 'Cartão' in df_cleaned_expenses.columns:
+                unique_cards = df_cleaned_expenses['Cartão'].unique().tolist()
+                st.write(f"**Cartões detectados no arquivo:** {unique_cards}")
+                
+                # Filter for BB card rows in the raw cleaned dataset
+                df_bb_raw = df_cleaned_expenses[df_cleaned_expenses['Cartão'].astype(str).str.contains('BB', na=False, case=False)]
+                st.write(f"**Total de linhas cruas do cartão 'BB' no arquivo:** {len(df_bb_raw)}")
+                st.dataframe(df_bb_raw[['Descrição', 'Valor', 'Vencimento', 'Efetivação', 'Lote_Tipo', 'Lote_Mes', 'Lote_Ano']])
+            else:
+                st.warning("Coluna 'Cartão' não encontrada nas despesas cruas.")
+            
 
             
     except Exception as e:
