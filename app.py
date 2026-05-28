@@ -893,8 +893,13 @@ elif df_raw_expenses is not None and df_raw_revenues is not None:
             ]
             exp_total = df_exp_p['Valor_Clean'].sum()
             
+            # Filter pending expenses for this period
+            df_pending_p = df_exp_p[df_exp_p['Status'] == 'Pendente']
+            pending_total = df_pending_p['Valor_Clean'].sum()
+            
             compare_rows.append({"Mês": period_name, "Tipo": "Receitas", "Valor": rev_total})
             compare_rows.append({"Mês": period_name, "Tipo": "Despesas", "Valor": exp_total})
+            compare_rows.append({"Mês": period_name, "Tipo": "Pendente", "Valor": pending_total})
             
         compare_data = pd.DataFrame(compare_rows)
         
@@ -907,7 +912,7 @@ elif df_raw_expenses is not None and df_raw_revenues is not None:
                 barmode="group",
                 title="Projeção de Fluxo de Caixa: Próximos 6 Meses (R$)",
                 labels={"Valor": "Total (R$)", "Mês": "Mês de Referência"},
-                color_discrete_map={"Receitas": "#10B981", "Despesas": "#F43F5E"}
+                color_discrete_map={"Receitas": "#10B981", "Despesas": "#F43F5E", "Pendente": "#F59E0B"}
             )
             fig_compare.update_layout(
                 margin=dict(t=50, b=10, l=10, r=10),
