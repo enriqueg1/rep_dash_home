@@ -879,9 +879,9 @@ elif df_raw_expenses is not None and df_raw_revenues is not None:
         
         # Calculate start period using session state offset
         start_period = pd.Period(year=sel_year, month=sel_month_num, freq='M') + st.session_state.chart_offset
-        projection_periods = [start_period + i for i in range(3)]
+        projection_periods = [start_period + i for i in range(4)]
         
-        # Format a dynamic title for the 3-month window
+        # Format a dynamic title for the 4-month window
         m_start = MESES[projection_periods[0].month]
         y_start = projection_periods[0].year
         m_end = MESES[projection_periods[-1].month]
@@ -926,6 +926,16 @@ elif df_raw_expenses is not None and df_raw_revenues is not None:
             
         compare_data = pd.DataFrame(compare_rows)
         
+        # Format pending values divided by 1000 with a "k" suffix (Brazilian style: e.g. 8,5 k)
+        def format_k(val):
+            if pd.isna(val) or val == 0:
+                return "0 k"
+            val_k = val / 1000.0
+            formatted = f"{val_k:.1f}".replace('.', ',')
+            return f"{formatted} k"
+            
+        compare_data["Texto_Formatado"] = compare_data["Valor"].apply(format_k)
+        
         if compare_data["Valor"].sum() > 0:
             fig_compare = px.bar(
                 compare_data,
@@ -933,8 +943,8 @@ elif df_raw_expenses is not None and df_raw_revenues is not None:
                 y="Valor",
                 color="Tipo",
                 barmode="group",
+                text="Texto_Formatado",
                 title=None,
-                labels={"Valor": "Total Pendente (R$)", "Mês": "Mês de Referência"},
                 color_discrete_map={"Receitas Pendentes": "#10B981", "Despesas Pendentes": "#F59E0B"}
             )
             fig_compare.update_layout(
@@ -943,8 +953,8 @@ elif df_raw_expenses is not None and df_raw_revenues is not None:
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)',
                 font=dict(family="Plus Jakarta Sans", size=12),
-                xaxis=dict(fixedrange=True),
-                yaxis=dict(fixedrange=True),
+                xaxis=dict(title=None, fixedrange=True),
+                yaxis=dict(title=None, showticklabels=False, showgrid=False, fixedrange=True),
                 dragmode=False,
                 legend=dict(
                     orientation="h",
@@ -955,8 +965,8 @@ elif df_raw_expenses is not None and df_raw_revenues is not None:
                 )
             )
             fig_compare.update_traces(
-                texttemplate='R$ %{y:,.2f}',
-                textposition='outside'
+                textposition='outside',
+                textfont_size=13
             )
             st.plotly_chart(fig_compare, use_container_width=True, config={'displayModeBar': False})
         else:
