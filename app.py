@@ -409,7 +409,7 @@ CREDENTIALS_FILE = "credentials.json"
 if not os.path.exists(CREDENTIALS_FILE) and os.path.exists("credential.json"):
     CREDENTIALS_FILE = "credential.json"
 
-DRIVE_EXPENSES_FILE_ID = "12N8C_KQwt469sVaupDtIwA8BpBIiLcKB"
+DRIVE_EXPENSES_FILE_ID = "19-Q3oZQYA0KdAj81mSgPCZph9avgzH_2"
 DRIVE_REVENUES_FILE_ID = "1KWzAuIoP0JuOgrROL8PGnsjnTj68JjrW"
 
 df_raw_expenses = None
