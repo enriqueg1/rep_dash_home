@@ -511,6 +511,9 @@ elif df_raw_expenses is not None and df_raw_revenues is not None:
         elif 'selected_month' not in st.session_state:
             st.session_state.selected_month = period_options[default_index]
             
+        if 'chart_offset' not in st.session_state:
+            st.session_state.chart_offset = 0
+            
         # Find current index
         try:
             current_index = period_options.index(st.session_state.selected_month)
@@ -536,6 +539,7 @@ elif df_raw_expenses is not None and df_raw_revenues is not None:
         # If selection changed, update session state and query params, then rerun
         if escolha_limpa != st.session_state.selected_month:
             st.session_state.selected_month = escolha_limpa
+            st.session_state.chart_offset = 0
             mes_sel, ano_sel = escolha_limpa.split('/')
             st.query_params["mes"] = mes_sel
             st.query_params["ano"] = ano_sel
@@ -871,10 +875,32 @@ elif df_raw_expenses is not None and df_raw_revenues is not None:
         # -------------------------------------------------------------
         st.markdown("<br/>", unsafe_allow_html=True)
         
-        # Calculate next 6 months starting from selected month
-        start_period = pd.Period(year=sel_year, month=sel_month_num, freq='M')
-        projection_periods = [start_period + i for i in range(6)]
+        # Calculate start period using session state offset
+        start_period = pd.Period(year=sel_year, month=sel_month_num, freq='M') + st.session_state.chart_offset
+        projection_periods = [start_period + i for i in range(3)]
         
+        # Format a dynamic title for the 3-month window
+        m_start = MESES[projection_periods[0].month]
+        y_start = projection_periods[0].year
+        m_end = MESES[projection_periods[-1].month]
+        y_end = projection_periods[-1].year
+        chart_title = f"Previsão de Saldo Pendente: {m_start}/{y_start} a {m_end}/{y_end} (R$)"
+        
+        # Navigation header & buttons (Premium layout)
+        col_hdr, col_btn = st.columns([3, 1])
+        with col_hdr:
+            st.markdown(f"### 📊 {chart_title}")
+        with col_btn:
+            btn_rec, btn_av = st.columns(2)
+            with btn_rec:
+                if st.button("⬅️ Recuar", key="btn_chart_rec", use_container_width=True):
+                    st.session_state.chart_offset -= 1
+                    st.rerun()
+            with btn_av:
+                if st.button("Avançar ➡️", key="btn_chart_av", use_container_width=True):
+                    st.session_state.chart_offset += 1
+                    st.rerun()
+                    
         compare_rows = []
         for p in projection_periods:
             period_name = f"{MESES[p.month]}/{str(p.year)[2:]}" # e.g. "Maio/26" for a cleaner, compact axis
@@ -905,12 +931,12 @@ elif df_raw_expenses is not None and df_raw_revenues is not None:
                 y="Valor",
                 color="Tipo",
                 barmode="group",
-                title="Previsão de Saldo Pendente: Próximos 6 Meses (R$)",
+                title=None,
                 labels={"Valor": "Total Pendente (R$)", "Mês": "Mês de Referência"},
                 color_discrete_map={"Receitas Pendentes": "#10B981", "Despesas Pendentes": "#F59E0B"}
             )
             fig_compare.update_layout(
-                margin=dict(t=50, b=10, l=10, r=10),
+                margin=dict(t=15, b=10, l=10, r=10),
                 height=350,
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)',
@@ -932,7 +958,7 @@ elif df_raw_expenses is not None and df_raw_revenues is not None:
             )
             st.plotly_chart(fig_compare, use_container_width=True, config={'displayModeBar': False})
         else:
-            st.info("Sem dados suficientes de despesas ou receitas para exibir o fluxo de lotes.")
+            st.info("Sem dados suficientes de despesas ou receitas pendentes para exibir o fluxo neste período.")
             
 
             
