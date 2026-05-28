@@ -871,37 +871,42 @@ elif df_raw_expenses is not None and df_raw_revenues is not None:
         # -------------------------------------------------------------
         st.markdown("<br/>", unsafe_allow_html=True)
         
-        # Calculate revenue totals for Dia 15 and Dia 30
-        df_rev_15 = df_filtered_revenues[df_filtered_revenues['Lote_Tipo'] == 'Dia 15']
-        df_rev_30 = df_filtered_revenues[df_filtered_revenues['Lote_Tipo'] == 'Dia 30']
+        # Calculate next 6 months starting from selected month
+        start_period = pd.Period(year=sel_year, month=sel_month_num, freq='M')
+        projection_periods = [start_period + i for i in range(6)]
         
-        revenue_dia_15 = df_rev_15['Valor_Clean'].sum()
-        revenue_dia_30 = df_rev_30['Valor_Clean'].sum()
-        
-        # Calculate expenses totals for Dia 15 and Dia 30
-        df_exp_15 = df_filtered[df_filtered['Lote_Tipo'] == 'Dia 15']
-        df_exp_30 = df_filtered[df_filtered['Lote_Tipo'] == 'Dia 30']
-        
-        expense_dia_15 = df_exp_15['Valor_Clean'].sum()
-        expense_dia_30 = df_exp_30['Valor_Clean'].sum()
-        
-        # Build comparative dataframe
-        compare_data = pd.DataFrame([
-            {"Lote": "Vale (Dia 15)", "Tipo": "Receitas", "Valor": revenue_dia_15},
-            {"Lote": "Vale (Dia 15)", "Tipo": "Despesas", "Valor": expense_dia_15},
-            {"Lote": "Pagamento (Dia 30)", "Tipo": "Receitas", "Valor": revenue_dia_30},
-            {"Lote": "Pagamento (Dia 30)", "Tipo": "Despesas", "Valor": expense_dia_30}
-        ])
+        compare_rows = []
+        for p in projection_periods:
+            period_name = f"{MESES[p.month]}/{str(p.year)[2:]}" # e.g. "Maio/26" for a cleaner, compact axis
+            
+            # Filter revenues for this period
+            df_rev_p = df_cleaned_revenues[
+                (df_cleaned_revenues['Lote_Mes'] == p.month) &
+                (df_cleaned_revenues['Lote_Ano'] == p.year)
+            ]
+            rev_total = df_rev_p['Valor_Clean'].sum()
+            
+            # Filter expenses for this period
+            df_exp_p = df_cleaned_expenses[
+                (df_cleaned_expenses['Lote_Mes'] == p.month) &
+                (df_cleaned_expenses['Lote_Ano'] == p.year)
+            ]
+            exp_total = df_exp_p['Valor_Clean'].sum()
+            
+            compare_rows.append({"Mês": period_name, "Tipo": "Receitas", "Valor": rev_total})
+            compare_rows.append({"Mês": period_name, "Tipo": "Despesas", "Valor": exp_total})
+            
+        compare_data = pd.DataFrame(compare_rows)
         
         if compare_data["Valor"].sum() > 0:
             fig_compare = px.bar(
                 compare_data,
-                x="Lote",
+                x="Mês",
                 y="Valor",
                 color="Tipo",
                 barmode="group",
-                title="Fluxo de Lotes: Receita vs Despesa (R$)",
-                labels={"Valor": "Total (R$)", "Lote": "Período"},
+                title="Projeção de Fluxo de Caixa: Próximos 6 Meses (R$)",
+                labels={"Valor": "Total (R$)", "Mês": "Mês de Referência"},
                 color_discrete_map={"Receitas": "#10B981", "Despesas": "#F43F5E"}
             )
             fig_compare.update_layout(
