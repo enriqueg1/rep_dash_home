@@ -90,9 +90,7 @@ st.markdown("""
         
         /* Header gradient styling (centered and compact) */
         .main-header {
-            background: linear-gradient(120deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #FFFFFF;
             font-weight: 800;
             font-size: 1.6rem;
             text-align: center;
