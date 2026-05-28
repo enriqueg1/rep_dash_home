@@ -339,8 +339,8 @@ def process_financial_data(df):
 
     df['Valor_Clean'] = df['Valor'].apply(parse_valor)
     
-    # Rule 3: Convert 'Vencimento' to datetime robustly (format='mixed' allows both DD/MM/YYYY and YYYY-MM-DD)
-    df['Vencimento_Parsed'] = pd.to_datetime(df['Vencimento'], format='mixed', errors='coerce')
+    # Rule 3: Convert 'Vencimento' to datetime robustly (format='mixed' and dayfirst=True ensures DD/MM/YYYY takes precedence)
+    df['Vencimento_Parsed'] = pd.to_datetime(df['Vencimento'], format='mixed', dayfirst=True, errors='coerce')
     
     # Check for invalid dates in 'Vencimento'
     invalid_vencimento = df['Vencimento_Parsed'].isna() & df['Vencimento'].notna() & (df['Vencimento'].astype(str).str.strip() != '')
@@ -365,7 +365,7 @@ def process_financial_data(df):
     df['Status'] = np.where(is_pending, 'Pendente', 'Paga')
     
     # Convert 'Efetivação' to datetime for analytical metrics robustly if needed
-    df['Efetivação_Parsed'] = pd.to_datetime(df['Efetivação'], format='mixed', errors='coerce')
+    df['Efetivação_Parsed'] = pd.to_datetime(df['Efetivação'], format='mixed', dayfirst=True, errors='coerce')
     
     # -----------------------------------------------------------------
     # Lote Payday Dynamic Classification Rule
