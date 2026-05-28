@@ -407,9 +407,11 @@ CREDENTIALS_FILE = "credentials.json"
 if not os.path.exists(CREDENTIALS_FILE) and os.path.exists("credential.json"):
     CREDENTIALS_FILE = "credential.json"
 
-DRIVE_FILE_ID = "12N8C_KQwt469sVaupDtIwA8BpBIiLcKB"
+DRIVE_EXPENSES_FILE_ID = "12N8C_KQwt469sVaupDtIwA8BpBIiLcKB"
+DRIVE_REVENUES_FILE_ID = "1KWzAuIoP0JuOgrROL8PGnsjnTj68JjrW"
 
-df_raw = None
+df_raw_expenses = None
+df_raw_revenues = None
 error_encountered = False
 error_details = ""
 
@@ -420,10 +422,11 @@ if st.sidebar.button("🔌 Sincronizar Agora", use_container_width=True):
     st.cache_data.clear()
     st.rerun()
 
-# Run the real-time fetch on start
+# Run the real-time fetch on start directly from Google Drive
 try:
     with st.spinner("Carregando suas finanças diretamente do Google Drive..."):
-        df_raw = load_data_from_drive(CREDENTIALS_FILE, DRIVE_FILE_ID)
+        df_raw_expenses = load_data_from_drive(CREDENTIALS_FILE, DRIVE_EXPENSES_FILE_ID)
+        df_raw_revenues = load_data_from_drive(CREDENTIALS_FILE, DRIVE_REVENUES_FILE_ID)
 except Exception as e:
     error_encountered = True
     error_details = str(e)
@@ -447,14 +450,12 @@ if error_encountered:
         e que o arquivo no Google Drive foi compartilhado com o e-mail da Service Account.</p>
     """, unsafe_allow_html=True)
     
-    # Offer fallback button to see demo data
-    if st.button("Alternar para Dados de Demonstração para testar o App"):
-        st.info("Altere a 'Fonte de Dados' na barra lateral esquerda para 'Dados de Demonstração (Local)' para testar a interface imediatamente.")
-        
-elif df_raw is not None:
+
+elif df_raw_expenses is not None and df_raw_revenues is not None:
     try:
         # Process and clean data using Pandas rules
-        df_cleaned = process_financial_data(df_raw)
+        df_cleaned_expenses = process_financial_data(df_raw_expenses)
+        df_cleaned_revenues = process_financial_data(df_raw_revenues)
         
         # Portuguese months dictionary
         MESES = {
@@ -464,12 +465,20 @@ elif df_raw is not None:
         }
         
         # Extract unique Year-Months from 'Lote_Ano' and 'Lote_Mes'
-        df_cleaned['Lote_Period'] = df_cleaned.apply(
+        df_cleaned_expenses['Lote_Period'] = df_cleaned_expenses.apply(
             lambda r: pd.Period(year=int(r['Lote_Ano']), month=int(r['Lote_Mes']), freq='M')
             if pd.notna(r['Lote_Mes']) and pd.notna(r['Lote_Ano']) else pd.NaT,
             axis=1
         )
-        unique_periods = sorted(df_cleaned['Lote_Period'].dropna().unique())
+        df_cleaned_revenues['Lote_Period'] = df_cleaned_revenues.apply(
+            lambda r: pd.Period(year=int(r['Lote_Ano']), month=int(r['Lote_Mes']), freq='M')
+            if pd.notna(r['Lote_Mes']) and pd.notna(r['Lote_Ano']) else pd.NaT,
+            axis=1
+        )
+        
+        # Combine and sort all unique periods
+        all_periods = set(df_cleaned_expenses['Lote_Period'].dropna().unique()) | set(df_cleaned_revenues['Lote_Period'].dropna().unique())
+        unique_periods = sorted(list(all_periods))
         
         # Format periods as "Mês/Ano" (e.g. "Maio/2026")
         def format_period(p):
@@ -540,9 +549,14 @@ elif df_raw is not None:
         sel_month_num = [k for k, v in MESES.items() if v == sel_month_name][0]
         
         # Filtered DataFrame for the monthly dashboard view (using Payday Lotes)
-        df_filtered = df_cleaned[
-            (df_cleaned['Lote_Mes'] == sel_month_num) &
-            (df_cleaned['Lote_Ano'] == sel_year)
+        df_filtered = df_cleaned_expenses[
+            (df_cleaned_expenses['Lote_Mes'] == sel_month_num) &
+            (df_cleaned_expenses['Lote_Ano'] == sel_year)
+        ]
+        
+        df_filtered_revenues = df_cleaned_revenues[
+            (df_cleaned_revenues['Lote_Mes'] == sel_month_num) &
+            (df_cleaned_revenues['Lote_Ano'] == sel_year)
         ]
         
         # -------------------------------------------------------------
@@ -785,8 +799,7 @@ elif df_raw is not None:
         # -------------------------------------------------------------
         # CHARTS VISUALIZATIONS SECTION (PREMIUM WOW FACTOR)
         # -------------------------------------------------------------
-        # Add visual summaries to delight the user and provide maximum value
-        st.markdown("### 📊 Visão Geral das Despesas")
+        st.markdown("### 📊 Visão Geral")
         chart_col1, chart_col2 = st.columns([1, 1])
         
         with chart_col1:
@@ -798,7 +811,7 @@ elif df_raw is not None:
                     x='Status',
                     y='Valor_Clean',
                     color='Status',
-                    title="Comparativo: Pago vs Pendente (R$)",
+                    title="Despesas: Pago vs Pendente (R$)",
                     labels={'Valor_Clean': 'Valor (R$)'},
                     color_discrete_map={'Paga': '#10B981', 'Pendente': '#F59E0B'}
                 )
@@ -852,6 +865,69 @@ elif df_raw is not None:
                 st.plotly_chart(fig_lote, use_container_width=True, config={'displayModeBar': False})
             else:
                 st.info("Nenhuma despesa pendente no mês para exibir a previsão por lote.")
+                
+        # -------------------------------------------------------------
+        # FLOW OF LOTS SECTION: REVENUES VS EXPENSES (PREMIUM WOW FACTOR)
+        # -------------------------------------------------------------
+        st.markdown("<br/>", unsafe_allow_html=True)
+        
+        # Calculate revenue totals for Dia 15 and Dia 30
+        df_rev_15 = df_filtered_revenues[df_filtered_revenues['Lote_Tipo'] == 'Dia 15']
+        df_rev_30 = df_filtered_revenues[df_filtered_revenues['Lote_Tipo'] == 'Dia 30']
+        
+        revenue_dia_15 = df_rev_15['Valor_Clean'].sum()
+        revenue_dia_30 = df_rev_30['Valor_Clean'].sum()
+        
+        # Calculate expenses totals for Dia 15 and Dia 30
+        df_exp_15 = df_filtered[df_filtered['Lote_Tipo'] == 'Dia 15']
+        df_exp_30 = df_filtered[df_filtered['Lote_Tipo'] == 'Dia 30']
+        
+        expense_dia_15 = df_exp_15['Valor_Clean'].sum()
+        expense_dia_30 = df_exp_30['Valor_Clean'].sum()
+        
+        # Build comparative dataframe
+        compare_data = pd.DataFrame([
+            {"Lote": "Vale (Dia 15)", "Tipo": "Receitas", "Valor": revenue_dia_15},
+            {"Lote": "Vale (Dia 15)", "Tipo": "Despesas", "Valor": expense_dia_15},
+            {"Lote": "Pagamento (Dia 30)", "Tipo": "Receitas", "Valor": revenue_dia_30},
+            {"Lote": "Pagamento (Dia 30)", "Tipo": "Despesas", "Valor": expense_dia_30}
+        ])
+        
+        if compare_data["Valor"].sum() > 0:
+            fig_compare = px.bar(
+                compare_data,
+                x="Lote",
+                y="Valor",
+                color="Tipo",
+                barmode="group",
+                title="Fluxo de Lotes: Receita vs Despesa (R$)",
+                labels={"Valor": "Total (R$)", "Lote": "Período"},
+                color_discrete_map={"Receitas": "#10B981", "Despesas": "#F43F5E"}
+            )
+            fig_compare.update_layout(
+                margin=dict(t=50, b=10, l=10, r=10),
+                height=350,
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                font=dict(family="Plus Jakarta Sans", size=12),
+                xaxis=dict(fixedrange=True),
+                yaxis=dict(fixedrange=True),
+                dragmode=False,
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="right",
+                    x=1
+                )
+            )
+            fig_compare.update_traces(
+                texttemplate='R$ %{y:,.2f}',
+                textposition='outside'
+            )
+            st.plotly_chart(fig_compare, use_container_width=True, config={'displayModeBar': False})
+        else:
+            st.info("Sem dados suficientes de despesas ou receitas para exibir o fluxo de lotes.")
             
 
             
